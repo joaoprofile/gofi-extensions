@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /home/admin-mat -name \"package.json\" -path \"*/vscode*\" 2>/dev/null | head -10)",
+      "Read(//home/admin-mat/**)",
+      "Bash(find /home/admin-mat -name \"*.ts\" -path \"*/extension*\" 2>/dev/null | head -20)",
+      "Bash(find /usr -name \"*.d.ts\" -path \"*anthropic*\" 2>/dev/null | head -5 ; find /root -name \"*.d.ts\" -path \"*anthropic*\" 2>/dev/null | head -5)",
+      "Read(//usr/**)",
+      "Read(//root/**)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(npx vsce *)",
+      "Bash(python3 -c \"import sys,json; [print\\(json.dumps\\(json.loads\\(l\\), indent=2\\)[:400]\\) for l in sys.stdin]\")"
+    ]
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "name": "gofi-extension",
+  "displayName": "Gofi — AI Change Monitor",
+  "description": "Real-time diff, token estimation, and confidence scoring for Claude Code file changes",
+  "version": "0.1.0",
+  "publisher": "gofi",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gofi/gofi-extension"
+  },
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "Other",
+    "AI"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "gofi-sidebar",
+          "title": "Gofi",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "gofi-sidebar": [
+        {
+          "type": "webview",
+          "id": "gofi.sessionPanel",
+          "name": "Change Monitor"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "gofi.startSession",
+        "title": "Gofi: Start Session"
+      },
+      {
+        "command": "gofi.stopSession",
+        "title": "Gofi: Stop Session"
+      },
+      {
+        "command": "gofi.clearSession",
+        "title": "Gofi: Clear Session"
+      },
+      {
+        "command": "gofi.installHook",
+        "title": "Gofi: Install Claude Code Hook"
+      },
+      {
+        "command": "gofi.setApiKey",
+        "title": "Gofi: Set Anthropic API Key"
+      }
+    ],
+    "configuration": {
+      "title": "Gofi",
+      "properties": {
+        "gofi.anthropicApiKey": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Anthropic API key for confidence scoring. Leave empty to use the `ANTHROPIC_API_KEY` environment variable.",
+          "scope": "application"
+        },
+        "gofi.enableConfidenceScoring": {
+          "type": "boolean",
+          "default": false,
+          "description": "Call Claude Haiku after each file change to score correctness and quality of the diff."
+        },
+        "gofi.confidenceDebounceMs": {
+          "type": "number",
+          "default": 2000,
+          "description": "Milliseconds to wait after the last change to a file before calling the confidence API."
+        },
+        "gofi.costPerMillionTokens": {
+          "type": "number",
+          "default": 3,
+          "description": "USD cost per million tokens for cost estimation (default: Sonnet input pricing)."
+        },
+        "gofi.excludeGlobs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/.git/**",
+            "**/dist/**",
+            "**/out/**",
+            "**/.vscode/**",
+            "**/*.log"
+          ],
+          "description": "Glob patterns to exclude from file watching."
+        },
+        "gofi.hookEventsPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Claude Code hook events JSONL file. Leave empty for default (~/.claude/gofi-events.jsonl)."
+        },
+        "gofi.aiProvider": {
+          "type": "string",
+          "enum": [
+            "claude",
+            "none"
+          ],
+          "default": "claude",
+          "description": "AI provider to use for confidence scoring."
+        },
+        "gofi.autoStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically start monitoring when the extension activates."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --platform=node --format=cjs",
+    "watch": "npm run compile -- --watch",
+    "type-check": "tsc --noEmit",
+    "package": "npm run compile && vsce package",
+    "vscode:prepublish": "npm run compile"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.94.0",
+    "@vscode/vsce": "^3.9.1",
+    "esbuild": "^0.28.0",
+    "typescript": "^5.4.0"
+  }
+}
