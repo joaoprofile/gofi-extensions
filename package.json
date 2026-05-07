@@ -117,6 +117,11 @@
           "type": "boolean",
           "default": true,
           "description": "Automatically start monitoring when the extension activates."
+        },
+        "gofi.contextReadDebounceMs": {
+          "type": "number",
+          "default": 60000,
+          "description": "Milliseconds to wait after a prompt with no file changes before logging it as a context read (default: 60s)."
         }
       }
     }

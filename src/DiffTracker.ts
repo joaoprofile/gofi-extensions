@@ -144,6 +144,11 @@ export class DiffTracker implements vscode.Disposable {
     };
   }
 
+  restore(changes: FileChange[]): void {
+    if (!Array.isArray(changes)) { return; }
+    for (const c of changes) { this._changes.push(c); }
+  }
+
   startSession(): void {
     this._isRunning = true;
     this._startTime = new Date();

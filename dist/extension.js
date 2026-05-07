@@ -765,14 +765,14 @@ var require_url_state_machine = __commonJS({
       return url.replace(/\u0009|\u000A|\u000D/g, "");
     }
     function shortenPath(url) {
-      const path5 = url.path;
-      if (path5.length === 0) {
+      const path6 = url.path;
+      if (path6.length === 0) {
         return;
       }
-      if (url.scheme === "file" && path5.length === 1 && isNormalizedWindowsDriveLetter(path5[0])) {
+      if (url.scheme === "file" && path6.length === 1 && isNormalizedWindowsDriveLetter(path6[0])) {
         return;
       }
-      path5.pop();
+      path6.pop();
     }
     function includesCredentials(url) {
       return url.username !== "" || url.password !== "";
@@ -2796,12 +2796,12 @@ var require_lib2 = __commonJS({
       const dest = new URL$1(destination).protocol;
       return orig === dest;
     };
-    function fetch2(url, opts) {
-      if (!fetch2.Promise) {
+    function fetch3(url, opts) {
+      if (!fetch3.Promise) {
         throw new Error("native promise missing, set fetch.Promise to your favorite alternative");
       }
-      Body.Promise = fetch2.Promise;
-      return new fetch2.Promise(function(resolve, reject) {
+      Body.Promise = fetch3.Promise;
+      return new fetch3.Promise(function(resolve, reject) {
         const request = new Request3(url, opts);
         const options = getNodeRequestOptions(request);
         const send = (options.protocol === "https:" ? https : http).request;
@@ -2872,7 +2872,7 @@ var require_lib2 = __commonJS({
         req.on("response", function(res) {
           clearTimeout(reqTimeout);
           const headers = createHeadersLenient(res.headers);
-          if (fetch2.isRedirect(res.statusCode)) {
+          if (fetch3.isRedirect(res.statusCode)) {
             const location = headers.get("Location");
             let locationURL = null;
             try {
@@ -2934,7 +2934,7 @@ var require_lib2 = __commonJS({
                   requestOpts.body = void 0;
                   requestOpts.headers.delete("content-length");
                 }
-                resolve(fetch2(new Request3(locationURL, requestOpts)));
+                resolve(fetch3(new Request3(locationURL, requestOpts)));
                 finalize();
                 return;
             }
@@ -3026,11 +3026,11 @@ var require_lib2 = __commonJS({
         stream.end();
       }
     }
-    fetch2.isRedirect = function(code) {
+    fetch3.isRedirect = function(code) {
       return code === 301 || code === 302 || code === 303 || code === 307 || code === 308;
     };
-    fetch2.Promise = global.Promise;
-    module2.exports = exports2 = fetch2;
+    fetch3.Promise = global.Promise;
+    module2.exports = exports2 = fetch3;
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.default = exports2;
     exports2.Headers = Headers3;
@@ -6351,14 +6351,14 @@ __export(fileFromPath_exports, {
   fileFromPathSync: () => fileFromPathSync,
   isFile: () => isFile
 });
-function createFileFromPath(path5, { mtimeMs, size }, filenameOrOptions, options = {}) {
+function createFileFromPath(path6, { mtimeMs, size }, filenameOrOptions, options = {}) {
   let filename;
   if (isPlainObject_default2(filenameOrOptions)) {
     [options, filename] = [filenameOrOptions, void 0];
   } else {
     filename = filenameOrOptions;
   }
-  const file = new FileFromPath({ path: path5, size, lastModified: mtimeMs });
+  const file = new FileFromPath({ path: path6, size, lastModified: mtimeMs });
   if (!filename) {
     filename = file.name;
   }
@@ -6367,13 +6367,13 @@ function createFileFromPath(path5, { mtimeMs, size }, filenameOrOptions, options
     lastModified: file.lastModified
   });
 }
-function fileFromPathSync(path5, filenameOrOptions, options = {}) {
-  const stats = (0, import_fs.statSync)(path5);
-  return createFileFromPath(path5, stats, filenameOrOptions, options);
+function fileFromPathSync(path6, filenameOrOptions, options = {}) {
+  const stats = (0, import_fs.statSync)(path6);
+  return createFileFromPath(path6, stats, filenameOrOptions, options);
 }
-async function fileFromPath2(path5, filenameOrOptions, options) {
-  const stats = await import_fs.promises.stat(path5);
-  return createFileFromPath(path5, stats, filenameOrOptions, options);
+async function fileFromPath2(path6, filenameOrOptions, options) {
+  const stats = await import_fs.promises.stat(path6);
+  return createFileFromPath(path6, stats, filenameOrOptions, options);
 }
 var import_fs, import_path, import_node_domexception, __classPrivateFieldSet4, __classPrivateFieldGet5, _FileFromPath_path, _FileFromPath_start, MESSAGE, FileFromPath;
 var init_fileFromPath = __esm({
@@ -6440,10 +6440,10 @@ __export(extension_exports, {
   deactivate: () => deactivate
 });
 module.exports = __toCommonJS(extension_exports);
-var vscode7 = __toESM(require("vscode"));
-var fs4 = __toESM(require("fs"));
-var os3 = __toESM(require("os"));
-var path4 = __toESM(require("path"));
+var vscode8 = __toESM(require("vscode"));
+var fs6 = __toESM(require("fs"));
+var os4 = __toESM(require("os"));
+var path5 = __toESM(require("path"));
 
 // src/DiffTracker.ts
 var vscode = __toESM(require("vscode"));
@@ -6582,6 +6582,14 @@ var DiffTracker = class {
       totalEstimatedCostUsd: this._changes.reduce((s2, c2) => s2 + c2.estimatedCostUsd, 0),
       uniqueFilesChanged: new Set(this._changes.map((c2) => c2.filePath)).size
     };
+  }
+  restore(changes) {
+    if (!Array.isArray(changes)) {
+      return;
+    }
+    for (const c2 of changes) {
+      this._changes.push(c2);
+    }
   }
   startSession() {
     this._isRunning = true;
@@ -6875,13 +6883,68 @@ var PromptWatcher = class {
       for (const line of lines) {
         try {
           const entry = JSON.parse(line);
-          if (entry.type === "last-prompt" && typeof entry.lastPrompt === "string" && entry.lastPrompt.trim()) {
-            this._onPrompt.fire(entry.lastPrompt);
+          if (entry.type === "user" && Array.isArray(entry.message?.content)) {
+            const textBlocks = entry.message.content.filter(
+              (c2) => c2.type === "text"
+            );
+            if (textBlocks.length > 0) {
+              const text = textBlocks.map((c2) => c2.text).join("\n").trim();
+              if (text) {
+                const context = this._buildContext(filePath, entry.sessionId);
+                this._onPrompt.fire({ prompt: text, context, filePath, fileOffset: offset });
+              }
+            }
           }
         } catch {
         }
       }
     } catch {
+    }
+  }
+  /**
+   * Reads the full JSONL file and returns the last 4 conversation turns
+   * (user + assistant pairs) formatted as plain text for the scorer.
+   * Assistant messages are truncated to their first 200 chars since the
+   * code they write isn't relevant to judging prompt clarity.
+   */
+  _buildContext(filePath, sessionId) {
+    try {
+      const content = fs2.readFileSync(filePath, "utf8");
+      const turns = [];
+      for (const line of content.split("\n")) {
+        if (!line.trim()) {
+          continue;
+        }
+        try {
+          const entry = JSON.parse(line);
+          if (sessionId && entry.sessionId !== sessionId) {
+            continue;
+          }
+          if (!Array.isArray(entry.message?.content)) {
+            continue;
+          }
+          const textBlocks = entry.message.content.filter(
+            (c2) => c2.type === "text"
+          );
+          if (!textBlocks.length) {
+            continue;
+          }
+          const raw = textBlocks.map((c2) => c2.text).join("\n").trim();
+          if (!raw) {
+            continue;
+          }
+          if (entry.type === "user") {
+            turns.push({ role: "User", text: raw.slice(0, 600) });
+          } else if (entry.type === "assistant") {
+            turns.push({ role: "Assistant", text: raw.slice(0, 200) });
+          }
+        } catch {
+        }
+      }
+      const recent = turns.slice(-9);
+      return recent.map((t2) => `${t2.role}: ${t2.text}`).join("\n\n");
+    } catch {
+      return "";
     }
   }
   dispose() {
@@ -6893,6 +6956,9 @@ var PromptWatcher = class {
 
 // src/ConfidenceService.ts
 var vscode5 = __toESM(require("vscode"));
+var fs4 = __toESM(require("fs"));
+var os3 = __toESM(require("os"));
+var path4 = __toESM(require("path"));
 
 // node_modules/@anthropic-ai/sdk/version.mjs
 var VERSION = "0.36.3";
@@ -6900,7 +6966,7 @@ var VERSION = "0.36.3";
 // node_modules/@anthropic-ai/sdk/_shims/registry.mjs
 var auto = false;
 var kind = void 0;
-var fetch = void 0;
+var fetch2 = void 0;
 var Request = void 0;
 var Response = void 0;
 var Headers = void 0;
@@ -6921,7 +6987,7 @@ function setShims(shims, options = { auto: false }) {
   }
   auto = options.auto;
   kind = shims.kind;
-  fetch = shims.fetch;
+  fetch2 = shims.fetch;
   Request = shims.Request;
   Response = shims.Response;
   Headers = shims.Headers;
@@ -7273,13 +7339,13 @@ var MultipartBody = class {
 // node_modules/@anthropic-ai/sdk/_shims/node-runtime.mjs
 var import_web = require("node:stream/web");
 var fileFromPathWarned = false;
-async function fileFromPath3(path5, ...args) {
+async function fileFromPath3(path6, ...args) {
   const { fileFromPath: _fileFromPath } = await Promise.resolve().then(() => (init_fileFromPath(), fileFromPath_exports));
   if (!fileFromPathWarned) {
-    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path5)}) instead`);
+    console.warn(`fileFromPath is deprecated; use fs.createReadStream(${JSON.stringify(path6)}) instead`);
     fileFromPathWarned = true;
   }
-  return await _fileFromPath(path5, ...args);
+  return await _fileFromPath(path6, ...args);
 }
 var defaultHttpAgent = new import_agentkeepalive.default({ keepAlive: true, timeout: 5 * 60 * 1e3 });
 var defaultHttpsAgent = new import_agentkeepalive.default.HttpsAgent({ keepAlive: true, timeout: 5 * 60 * 1e3 });
@@ -7950,7 +8016,7 @@ var APIClient = class {
     this.maxRetries = validatePositiveInteger("maxRetries", maxRetries);
     this.timeout = validatePositiveInteger("timeout", timeout);
     this.httpAgent = httpAgent;
-    this.fetch = overriddenFetch ?? fetch;
+    this.fetch = overriddenFetch ?? fetch2;
   }
   authHeaders(opts) {
     return {};
@@ -7980,29 +8046,29 @@ var APIClient = class {
   defaultIdempotencyKey() {
     return `stainless-node-retry-${uuid4()}`;
   }
-  get(path5, opts) {
-    return this.methodRequest("get", path5, opts);
+  get(path6, opts) {
+    return this.methodRequest("get", path6, opts);
   }
-  post(path5, opts) {
-    return this.methodRequest("post", path5, opts);
+  post(path6, opts) {
+    return this.methodRequest("post", path6, opts);
   }
-  patch(path5, opts) {
-    return this.methodRequest("patch", path5, opts);
+  patch(path6, opts) {
+    return this.methodRequest("patch", path6, opts);
   }
-  put(path5, opts) {
-    return this.methodRequest("put", path5, opts);
+  put(path6, opts) {
+    return this.methodRequest("put", path6, opts);
   }
-  delete(path5, opts) {
-    return this.methodRequest("delete", path5, opts);
+  delete(path6, opts) {
+    return this.methodRequest("delete", path6, opts);
   }
-  methodRequest(method, path5, opts) {
+  methodRequest(method, path6, opts) {
     return this.request(Promise.resolve(opts).then(async (opts2) => {
       const body = opts2 && isBlobLike(opts2?.body) ? new DataView(await opts2.body.arrayBuffer()) : opts2?.body instanceof DataView ? opts2.body : opts2?.body instanceof ArrayBuffer ? new DataView(opts2.body) : opts2 && ArrayBuffer.isView(opts2?.body) ? new DataView(opts2.body.buffer) : opts2?.body;
-      return { method, path: path5, ...opts2, body };
+      return { method, path: path6, ...opts2, body };
     }));
   }
-  getAPIList(path5, Page2, opts) {
-    return this.requestAPIList(Page2, { method: "get", path: path5, ...opts });
+  getAPIList(path6, Page2, opts) {
+    return this.requestAPIList(Page2, { method: "get", path: path6, ...opts });
   }
   calculateContentLength(body) {
     if (typeof body === "string") {
@@ -8020,10 +8086,10 @@ var APIClient = class {
     return null;
   }
   buildRequest(options, { retryCount = 0 } = {}) {
-    const { method, path: path5, query, headers = {} } = options;
+    const { method, path: path6, query, headers = {} } = options;
     const body = ArrayBuffer.isView(options.body) || options.__binaryRequest && typeof options.body === "string" ? options.body : isMultipartBody(options.body) ? options.body.body : options.body ? JSON.stringify(options.body, null, 2) : null;
     const contentLength = this.calculateContentLength(body);
-    const url = this.buildURL(path5, query);
+    const url = this.buildURL(path6, query);
     if ("timeout" in options)
       validatePositiveInteger("timeout", options.timeout);
     const timeout = options.timeout ?? this.timeout;
@@ -8136,8 +8202,8 @@ var APIClient = class {
     const request = this.makeRequest(options, null);
     return new PagePromise(this, request, Page2);
   }
-  buildURL(path5, query) {
-    const url = isAbsoluteURL(path5) ? new URL(path5) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path5.startsWith("/") ? path5.slice(1) : path5));
+  buildURL(path6, query) {
+    const url = isAbsoluteURL(path6) ? new URL(path6) : new URL(this.baseURL + (this.baseURL.endsWith("/") && path6.startsWith("/") ? path6.slice(1) : path6));
     const defaultQuery = this.defaultQuery();
     if (!isEmptyObj(defaultQuery)) {
       query = { ...defaultQuery, ...query };
@@ -8469,12 +8535,12 @@ var castToError = (err) => {
   }
   return new Error(String(err));
 };
-var readEnv = (env) => {
+var readEnv = (env2) => {
   if (typeof process !== "undefined") {
-    return process.env?.[env]?.trim() ?? void 0;
+    return process.env?.[env2]?.trim() ?? void 0;
   }
   if (typeof Deno !== "undefined") {
-    return Deno.env?.get?.(env)?.trim();
+    return Deno.env?.get?.(env2)?.trim();
   }
   return void 0;
 };
@@ -10379,8 +10445,7 @@ var ClaudeConfidenceProvider = class {
     this._debounceTimers = /* @__PURE__ */ new Map();
   }
   isConfigured() {
-    const key = vscode5.workspace.getConfiguration("gofi").get("anthropicApiKey", "");
-    return key.length > 0 || !!process.env.ANTHROPIC_API_KEY;
+    return true;
   }
   scheduleScore(change, onResult) {
     const debounceMs = vscode5.workspace.getConfiguration("gofi").get("confidenceDebounceMs", 2e3);
@@ -10401,33 +10466,22 @@ var ClaudeConfidenceProvider = class {
     if (this._cache.has(change.id)) {
       return this._cache.get(change.id);
     }
-    if (!this.isConfigured()) {
-      return null;
-    }
     const diffText = rawDiffText(change.hunks);
     if (!diffText.trim()) {
       return null;
     }
     try {
-      const client = this._getClient();
-      if (!client) {
-        return null;
-      }
       const t0 = Date.now();
-      const response = await client.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 150,
-        system: "You are a code review assistant. Respond with only a JSON object, no markdown.",
-        messages: [{
-          role: "user",
-          content: `Analyze this code diff for the file "${change.relPath}" and respond with ONLY this JSON:
+      const system = "You are a code review assistant. Respond with only a JSON object, no markdown.";
+      const user = `Analyze this code diff for the file "${change.relPath}" and respond with ONLY this JSON:
 {"correctness":0-100,"quality":0-100,"rationale":"one sentence"}
 
 Diff:
-${diffText.slice(0, 4e3)}`
-        }]
-      });
-      const text = response.content[0].type === "text" ? response.content[0].text.trim() : "";
+${diffText.slice(0, 4e3)}`;
+      const text = await this._callModel(system, user, 150);
+      if (!text) {
+        return null;
+      }
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         return null;
@@ -10447,39 +10501,68 @@ ${diffText.slice(0, 4e3)}`
       return null;
     }
   }
-  _getClient() {
+  async _callModel(system, user, maxTokens) {
     const key = vscode5.workspace.getConfiguration("gofi").get("anthropicApiKey", "") || process.env.ANTHROPIC_API_KEY || "";
-    if (!key) {
-      return null;
+    if (key) {
+      if (!this._client) {
+        this._client = new sdk_default({ apiKey: key });
+      }
+      const response = await this._client.messages.create({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: maxTokens,
+        system,
+        messages: [{ role: "user", content: user }]
+      });
+      return response.content[0].type === "text" ? response.content[0].text.trim() : null;
     }
-    if (!this._client) {
-      this._client = new sdk_default({ apiKey: key });
-    }
-    return this._client;
+    return this._callWithClaudeAuth(system, user, maxTokens);
   }
-  async scorePrompt(prompt) {
-    if (!this.isConfigured()) {
-      return null;
-    }
+  async _callWithClaudeAuth(system, user, maxTokens) {
     try {
-      const client = this._getClient();
-      if (!client) {
+      const credPath = path4.join(os3.homedir(), ".claude", ".credentials.json");
+      const creds = JSON.parse(fs4.readFileSync(credPath, "utf8"));
+      const { accessToken, expiresAt } = creds?.claudeAiOauth ?? {};
+      if (!accessToken) {
         return null;
       }
-      const response = await client.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 400,
-        system: "You are a code planning assistant. Analyze AI coding prompts and respond with ONLY a JSON object, no markdown.",
-        messages: [{
-          role: "user",
-          content: `Analyze this prompt that will be sent to an AI coding assistant.
-Respond with ONLY: {"clarity":0-100,"completeness":0-100,"issues":["issue1","issue2"]}
-
-Prompt:
-${prompt.slice(0, 6e3)}`
-        }]
+      if (expiresAt && Date.now() > new Date(expiresAt).getTime()) {
+        return null;
+      }
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`,
+          "anthropic-version": "2023-06-01"
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: maxTokens,
+          system,
+          messages: [{ role: "user", content: user }]
+        })
       });
-      const text = response.content[0].type === "text" ? response.content[0].text.trim() : "";
+      if (!resp.ok) {
+        return null;
+      }
+      const data = await resp.json();
+      return data.content?.[0]?.text?.trim() ?? null;
+    } catch {
+      return null;
+    }
+  }
+  async scorePrompt(prompt) {
+    try {
+      const system = "You are a code planning assistant. You must respond with ONLY raw JSON \u2014 no markdown, no code fences, no extra text.";
+      const user = `Analyze the LATEST USER message below for clarity and completeness as a prompt to an AI coding assistant. Earlier turns provide context \u2014 a short follow-up can be perfectly clear if the session already established the goal.
+Respond with ONLY this JSON (max 2 issues, max 6 words each): {"clarity":0-100,"completeness":0-100,"issues":["short issue"]}
+
+Conversation:
+${prompt.slice(0, 3e3)}`;
+      const text = await this._callModel(system, user, 120);
+      if (!text) {
+        return null;
+      }
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         return null;
@@ -10517,17 +10600,127 @@ var NoOpProvider = class {
   }
 };
 
-// src/SessionPanel.ts
+// src/ContextReadTracker.ts
+var fs5 = __toESM(require("fs"));
 var vscode6 = __toESM(require("vscode"));
+var ContextReadTracker = class {
+  constructor() {
+    this._onEntry = new vscode6.EventEmitter();
+    this.onEntry = this._onEntry.event;
+    this._pending = null;
+    this._entries = [];
+  }
+  get entries() {
+    return [...this._entries];
+  }
+  restore(entries) {
+    this._entries.push(...entries);
+  }
+  clearEntries() {
+    this._entries.length = 0;
+    if (this._pending) {
+      clearTimeout(this._pending.timer);
+      this._pending = null;
+    }
+  }
+  onPromptDetected(detection) {
+    if (this._pending) {
+      clearTimeout(this._pending.timer);
+    }
+    const debounceMs = vscode6.workspace.getConfiguration("gofi").get("contextReadDebounceMs", 6e4);
+    const timer = setTimeout(() => {
+      this._pending = null;
+      this._emit(detection);
+    }, debounceMs);
+    this._pending = { detection, timer };
+  }
+  /** Call whenever a file change is detected — cancels any pending context-read. */
+  onFileChange() {
+    if (this._pending) {
+      clearTimeout(this._pending.timer);
+      this._pending = null;
+    }
+  }
+  _emit(detection) {
+    const tokens = this._estimateTokensDelta(detection);
+    const costPerMillion = vscode6.workspace.getConfiguration("gofi").get("costPerMillionTokens", 3);
+    const entry = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+      prompt: detection.prompt.slice(0, 100),
+      estimatedTokens: tokens,
+      estimatedCostUsd: estimateCost(tokens, costPerMillion)
+    };
+    this._entries.push(entry);
+    this._onEntry.fire(entry);
+  }
+  /**
+   * Reads every JSONL line appended after `detection.fileOffset` and sums the
+   * real token counts from the API usage field on assistant messages.
+   *
+   * Each API call produces several JSONL entries with the same `message.id`
+   * (streaming chunks), so we deduplicate by ID and only count each message once.
+   *
+   * Usage fields summed: input_tokens + cache_creation_input_tokens +
+   * cache_read_input_tokens + output_tokens.
+   *
+   * Falls back to chars/4 if no usage data is found (e.g. empty delta).
+   */
+  _estimateTokensDelta(detection) {
+    try {
+      const stat = fs5.statSync(detection.filePath, { throwIfNoEntry: false });
+      if (!stat || stat.size <= detection.fileOffset) {
+        return Math.ceil(detection.context.length / 4);
+      }
+      const fd = fs5.openSync(detection.filePath, "r");
+      const buf = Buffer.alloc(stat.size - detection.fileOffset);
+      fs5.readSync(fd, buf, 0, buf.length, detection.fileOffset);
+      fs5.closeSync(fd);
+      let totalTokens = 0;
+      const seenIds = /* @__PURE__ */ new Set();
+      for (const line of buf.toString("utf8").split("\n")) {
+        if (!line.trim()) {
+          continue;
+        }
+        try {
+          const entry = JSON.parse(line);
+          const msgId = entry.message?.id;
+          const usage = entry.message?.usage;
+          if (!usage || !msgId || seenIds.has(msgId)) {
+            continue;
+          }
+          seenIds.add(msgId);
+          totalTokens += (usage.input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0) + (usage.output_tokens ?? 0);
+        } catch {
+        }
+      }
+      return totalTokens > 0 ? totalTokens : Math.ceil(detection.context.length / 4);
+    } catch {
+      return Math.ceil(detection.context.length / 4);
+    }
+  }
+  dispose() {
+    if (this._pending) {
+      clearTimeout(this._pending.timer);
+    }
+    this._pending = null;
+    this._onEntry.dispose();
+  }
+};
+
+// src/SessionPanel.ts
+var vscode7 = __toESM(require("vscode"));
 var import_crypto2 = require("crypto");
 var SessionPanel = class {
   constructor(_extensionUri) {
     this._extensionUri = _extensionUri;
     this._disposables = [];
-    this._onReady = new vscode6.EventEmitter();
-    this._onScorePromptRequest = new vscode6.EventEmitter();
+    this._onReady = new vscode7.EventEmitter();
+    this._onScorePromptRequest = new vscode7.EventEmitter();
+    this._onDeleteSession = new vscode7.EventEmitter();
     this.onReady = this._onReady.event;
     this.onScorePromptRequest = this._onScorePromptRequest.event;
+    this.onDeleteSession = this._onDeleteSession.event;
   }
   static {
     this.VIEW_ID = "gofi.sessionPanel";
@@ -10554,22 +10747,30 @@ var SessionPanel = class {
         this._onReady.fire();
         break;
       case "openFile":
-        vscode6.window.showTextDocument(vscode6.Uri.file(msg.filePath)).then(
+        vscode7.window.showTextDocument(vscode7.Uri.file(msg.filePath)).then(
           void 0,
-          (err) => vscode6.window.showErrorMessage(`Gofi: Cannot open file \u2014 ${err}`)
+          (err) => vscode7.window.showErrorMessage(`Gofi: Cannot open file \u2014 ${err}`)
         );
         break;
       case "startSession":
-        vscode6.commands.executeCommand("gofi.startSession");
+        vscode7.commands.executeCommand("gofi.startSession");
         break;
       case "stopSession":
-        vscode6.commands.executeCommand("gofi.stopSession");
+        vscode7.commands.executeCommand("gofi.stopSession");
         break;
       case "clearSession":
-        vscode6.commands.executeCommand("gofi.clearSession");
+        vscode7.commands.executeCommand("gofi.clearSession");
         break;
       case "scorePrompt":
         this._onScorePromptRequest.fire(msg.prompt);
+        break;
+      case "copyReview":
+        vscode7.env.clipboard.writeText(msg.text).then(() => {
+          vscode7.window.showInformationMessage("Gofi: Review prompt copied \u2014 paste into Claude Code.");
+        });
+        break;
+      case "deleteSession":
+        this._onDeleteSession.fire(msg.sessionId);
         break;
     }
   }
@@ -10578,7 +10779,10 @@ var SessionPanel = class {
     this._view?.webview.postMessage(msg);
   }
   _buildHtml(webview) {
-    const nonce = (0, import_crypto2.randomBytes)(16).toString("base64");
+    const nonce = (0, import_crypto2.randomBytes)(16).toString("hex");
+    const scriptUri = webview.asWebviewUri(
+      vscode7.Uri.joinPath(this._extensionUri, "media", "webview.js")
+    );
     return (
       /* html */
       `<!DOCTYPE html>
@@ -10586,7 +10790,7 @@ var SessionPanel = class {
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';">
+    content="default-src 'none'; style-src 'nonce-${nonce}'; script-src ${webview.cspSource};">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Gofi</title>
   <style nonce="${nonce}">
@@ -10845,19 +11049,95 @@ var SessionPanel = class {
     .prompt-section.open .prompt-hdr .expand-icon{transform:rotate(90deg)}
     .prompt-body{display:none;padding:6px 8px}
     .prompt-section.open .prompt-body{display:block}
-    textarea{
-      width:100%;min-height:72px;display:block;margin-bottom:5px;
+    .prompt-text{
+      font-size:11px;padding:4px 6px;min-height:40px;max-height:90px;overflow-y:auto;
+      background:var(--vscode-input-background);border-radius:3px;
+      white-space:pre-wrap;word-break:break-word;margin-bottom:5px;
+    }
+    .prompt-text.empty{font-style:italic;color:var(--vscode-descriptionForeground)}
+    .scoring-hint{font-size:10px;color:var(--vscode-descriptionForeground);font-style:italic;display:block;margin-bottom:4px}
+    .review-area{
+      display:none;padding:5px 8px;background:var(--vscode-editor-background);
+      border-top:1px solid var(--vscode-panel-border);
+    }
+    .entry.open .review-area{display:block}
+    .review-input{
+      width:100%;min-height:48px;display:block;margin-bottom:5px;
       background:var(--vscode-input-background);color:var(--vscode-input-foreground);
       border:1px solid var(--vscode-input-border,transparent);
       border-radius:3px;padding:4px 6px;font-family:inherit;font-size:11px;resize:vertical;
     }
-    textarea:focus{outline:1px solid var(--vscode-focusBorder);border-color:transparent}
-    .prompt-actions{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-    .scoring-hint{font-size:10px;color:var(--vscode-descriptionForeground);font-style:italic}
+    .review-input:focus{outline:1px solid var(--vscode-focusBorder);border-color:transparent}
+    .review-actions{display:flex;align-items:center;gap:8px}
+    .copy-toast{font-size:10px;color:#4ec9b0;display:none}
     .pr-scores{display:flex;gap:6px;margin-bottom:5px;flex-wrap:wrap}
     .pr-issues{list-style:none;padding:0;margin:0}
     .pr-issues li{font-size:10px;padding:1px 0 1px 14px;position:relative;color:var(--vscode-foreground)}
     .pr-issues li::before{content:'\u26A0';position:absolute;left:0;font-size:9px;color:#e6a23c}
+    /* \u2500\u2500 Context reads log \u2500\u2500 */
+    .reads-section{border-bottom:1px solid var(--vscode-panel-border);flex-shrink:0}
+    .reads-hdr{
+      display:flex;align-items:center;gap:5px;padding:5px 8px;
+      cursor:pointer;user-select:none;font-size:11px;font-weight:600;
+      background:var(--vscode-sideBarSectionHeader-background);
+    }
+    .reads-hdr:hover{background:var(--vscode-list-hoverBackground)}
+    .reads-section.open .reads-hdr .expand-icon{transform:rotate(90deg)}
+    .reads-body{display:none;max-height:160px;overflow-y:auto}
+    .reads-section.open .reads-body{display:block}
+    .reads-count{
+      font-size:9px;padding:1px 5px;border-radius:10px;
+      background:rgba(88,166,255,.15);color:#79b8ff;font-weight:600;
+    }
+    .reads-total{margin-left:auto;font-size:10px;color:var(--vscode-descriptionForeground)}
+    .read-entry{
+      display:flex;align-items:center;gap:6px;padding:3px 8px;
+      border-bottom:1px solid var(--vscode-panel-border);font-size:10px;
+    }
+    .read-time{color:var(--vscode-descriptionForeground);flex-shrink:0;font-variant-numeric:tabular-nums}
+    .read-prompt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+      color:var(--vscode-foreground);font-style:italic}
+    .read-tokens{color:var(--vscode-descriptionForeground);flex-shrink:0;font-variant-numeric:tabular-nums}
+    .read-cost{color:#e6a23c;flex-shrink:0;font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
+    /* \u2500\u2500 Past sessions \u2500\u2500 */
+    .sessions-section{border-bottom:1px solid var(--vscode-panel-border);flex-shrink:0}
+    .sessions-hdr{
+      display:flex;align-items:center;gap:5px;padding:5px 8px;
+      cursor:pointer;user-select:none;font-size:11px;font-weight:600;
+      background:var(--vscode-sideBarSectionHeader-background);
+    }
+    .sessions-hdr:hover{background:var(--vscode-list-hoverBackground)}
+    .sessions-section.open .sessions-hdr .expand-icon{transform:rotate(90deg)}
+    .sessions-body{display:none;max-height:200px;overflow-y:auto}
+    .sessions-section.open .sessions-body{display:block}
+    .sessions-count{
+      font-size:9px;padding:1px 5px;border-radius:10px;
+      background:rgba(230,162,60,.15);color:#e6a23c;font-weight:600;
+    }
+    .session-row{
+      display:flex;align-items:center;gap:5px;padding:4px 8px;
+      border-bottom:1px solid var(--vscode-panel-border);font-size:10px;
+    }
+    .session-row:hover{background:var(--vscode-list-hoverBackground)}
+    .session-date{color:var(--vscode-descriptionForeground);flex-shrink:0;min-width:80px;font-variant-numeric:tabular-nums}
+    .session-meta{flex:1;color:var(--vscode-foreground);display:flex;gap:6px;flex-wrap:wrap}
+    .session-stat{color:var(--vscode-descriptionForeground)}
+    .session-cost{color:#e6a23c;flex-shrink:0;font-variant-numeric:tabular-nums}
+    .session-del{
+      background:none;border:none;cursor:pointer;padding:0 2px;
+      color:var(--vscode-descriptionForeground);font-size:12px;line-height:1;
+      flex-shrink:0;opacity:.5;
+    }
+    .session-del:hover{opacity:1;color:#f48771}
+    /* \u2500\u2500 Sound toggle \u2500\u2500 */
+    .btn-sound{
+      margin-left:auto;background:none;border:none;cursor:pointer;
+      padding:2px 4px;line-height:1;opacity:.45;
+      color:var(--vscode-foreground);display:flex;align-items:center;
+    }
+    .btn-sound:hover{opacity:.8}
+    .btn-sound.on{opacity:1;color:#4ec9b0}
+    .btn-sound svg{width:16px;height:16px;fill:currentColor}
   </style>
 </head>
 <body>
@@ -10875,24 +11155,24 @@ var SessionPanel = class {
       <button id="btn-stop" data-action="stop" disabled>Stop</button>
       <button id="btn-clear" data-action="clear">Clear</button>
       <span class="provider-badge" id="provider-badge">Claude</span>
+      <button class="btn-sound" id="btn-sound" title="Toggle notification sound">
+        <svg id="icon-mute" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5a.5.5 0 0 1 .5.5v11.5a.5.5 0 0 1-.854.354L4.293 10.5H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h2.293L7.646 1.854A.5.5 0 0 1 8 1.5zM2 6.5v3h2.5l3 3V3.5l-3 3H2zM13.354 5.146a.5.5 0 0 1 0 .708l-1.5 1.5 1.5 1.5a.5.5 0 0 1-.708.708l-1.5-1.5-1.5 1.5a.5.5 0 0 1-.708-.708l1.5-1.5-1.5-1.5a.5.5 0 0 1 .708-.708l1.5 1.5 1.5-1.5a.5.5 0 0 1 .708 0z"/></svg>
+        <svg id="icon-sound" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="display:none"><path d="M8 1.5a.5.5 0 0 1 .5.5v11.5a.5.5 0 0 1-.854.354L4.293 10.5H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h2.293L7.646 1.854A.5.5 0 0 1 8 1.5zM2 6.5v3h2.5l3 3V3.5l-3 3H2zM11.536 4.5a.5.5 0 0 1 .707.017A4.49 4.49 0 0 1 13.5 7.75a4.49 4.49 0 0 1-1.257 3.233.5.5 0 0 1-.724-.69A3.49 3.49 0 0 0 12.5 7.75a3.49 3.49 0 0 0-.98-2.493.5.5 0 0 1 .016-.757zM10.121 6.121a.5.5 0 0 1 .707.014 2.49 2.49 0 0 1 0 3.23.5.5 0 0 1-.721-.693 1.49 1.49 0 0 0 0-1.844.5.5 0 0 1 .014-.707z"/></svg>
+      </button>
     </div>
   </div>
   <div class="status-bar">
     <span class="dot" id="status-dot"></span>
     <span id="status-text">Loading\u2026</span>
   </div>
-  <div class="prompt-section" id="prompt-section">
+  <div class="prompt-section open" id="prompt-section">
     <div class="prompt-hdr">
       <span class="expand-icon">\u203A</span>
-      <span>Analyze Prompt</span>
-      <span id="auto-badge" style="display:none;margin-left:6px;font-size:9px;padding:1px 5px;border-radius:10px;background:rgba(78,201,176,.15);color:#4ec9b0;font-weight:600">auto</span>
+      <span>Latest Prompt</span>
     </div>
     <div class="prompt-body">
-      <textarea id="prompt-input" placeholder="Paste your plan or prompt here\u2026"></textarea>
-      <div class="prompt-actions">
-        <button class="primary" id="btn-score-prompt">Score Prompt</button>
-        <span class="scoring-hint" id="scoring-hint" style="display:none">Analyzing\u2026</span>
-      </div>
+      <div id="prompt-text" class="prompt-text empty">Waiting for prompt\u2026</div>
+      <span class="scoring-hint" id="scoring-hint" style="display:none">Analyzing\u2026</span>
       <div id="prompt-result" style="display:none">
         <div class="pr-scores">
           <span class="cscore" id="pr-clarity"></span>
@@ -10902,348 +11182,28 @@ var SessionPanel = class {
       </div>
     </div>
   </div>
+  <div class="reads-section" id="reads-section" style="display:none">
+    <div class="reads-hdr">
+      <span class="expand-icon">\u203A</span>
+      <span>Context Reads</span>
+      <span class="reads-count" id="reads-count">0</span>
+      <span class="reads-total" id="reads-total">$0.00</span>
+    </div>
+    <div class="reads-body" id="reads-body"></div>
+  </div>
+  <div class="sessions-section" id="sessions-section" style="display:none">
+    <div class="sessions-hdr">
+      <span class="expand-icon">\u203A</span>
+      <span>Past Sessions</span>
+      <span class="sessions-count" id="sessions-count">0</span>
+    </div>
+    <div class="sessions-body" id="sessions-body"></div>
+  </div>
   <div class="feed" id="feed">
     <div class="empty-state">No file changes detected yet.<br>Start a monitoring session, then run Claude Code.</div>
   </div>
 
-  <script nonce="${nonce}">(function(){
-    const vscode = acquireVsCodeApi();
-    let appState = vscode.getState() || {changes:[], stats:null};
-
-    // \u2500\u2500 Helpers \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function esc(s){
-      return String(s)
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;');
-    }
-
-    function fmtNum(n){
-      if(n>=1e6) return (n/1e6).toFixed(1)+'M';
-      if(n>=1e3) return (n/1e3).toFixed(1)+'k';
-      return String(n);
-    }
-
-    function fmtCost(usd){
-      if(usd<1e-6) return '$0.00';
-      if(usd<1e-4) return '$'+usd.toFixed(6);
-      if(usd<0.01) return '$'+usd.toFixed(4);
-      return '$'+usd.toFixed(2);
-    }
-
-    function fmtDur(ms){
-      if(!ms) return '\u2014';
-      const s=Math.floor(ms/1000);
-      const m=Math.floor(s/60);
-      const h=Math.floor(m/60);
-      if(h>0) return h+':'+String(m%60).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
-      return m+':'+String(s%60).padStart(2,'0');
-    }
-
-    function fmtTime(iso){
-      const d=new Date(iso);
-      return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    }
-
-    function scoreClass(n){return n>=80?'hi':n>=60?'md':'lo'}
-
-    // \u2500\u2500 Render stats \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function renderStats(stats){
-      if(!stats) return;
-      document.getElementById('s-files').textContent = stats.uniqueFilesChanged;
-      document.getElementById('s-added').textContent = '+'+stats.totalAddedLines;
-      document.getElementById('s-removed').textContent = '\u2212'+stats.totalRemovedLines;
-      document.getElementById('s-tokens').textContent = fmtNum(stats.totalEstimatedTokens);
-      document.getElementById('s-cost').textContent = fmtCost(stats.totalEstimatedCostUsd);
-      document.getElementById('s-dur').textContent = fmtDur(stats.durationMs);
-
-      const dot = document.getElementById('status-dot');
-      const txt = document.getElementById('status-text');
-      const start = document.getElementById('btn-start');
-      const stop  = document.getElementById('btn-stop');
-
-      if(stats.isRunning){
-        dot.className='dot active';
-        txt.textContent='Monitoring\u2026';
-        start.disabled=true;
-        stop.disabled=false;
-      } else {
-        dot.className='dot';
-        txt.textContent=stats.startTime?'Session paused':'Not monitoring';
-        start.disabled=false;
-        stop.disabled=true;
-      }
-    }
-
-    // \u2500\u2500 Build diff HTML \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function buildDiffHtml(change){
-      if(change.skippedDiff){
-        return '<div class="diff-skipped">File too large to diff \u2014 '+
-          change.addedLines+' new / '+change.removedLines+' old lines</div>';
-      }
-      if(!change.hunks||change.hunks.length===0){
-        return '<div class="diff-skipped">No visible changes in this file</div>';
-      }
-      return change.hunks.map(hunk=>{
-        const lns = hunk.lines.map(l=>{
-          const pfx = l.type==='added'?'+':l.type==='removed'?'-':' ';
-          const ln  = l.lineNoNew??l.lineNoOld??'';
-          return '<div class="dl '+esc(l.type)+'">'+
-            '<span class="ln">'+ln+'</span>'+
-            '<span class="pfx">'+pfx+'</span>'+
-            '<span class="code">'+esc(l.content)+'</span>'+
-            '</div>';
-        }).join('');
-        return '<div class="hunk-hdr">'+esc(hunk.header)+'</div>'+lns;
-      }).join('');
-    }
-
-    // \u2500\u2500 Build confidence HTML \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function buildConfHtml(conf){
-      if(!conf) return '<span class="ctext">Awaiting analysis\u2026</span>';
-      return '<span class="cscore '+scoreClass(conf.correctness)+'">\u2713 '+conf.correctness+'%</span>'+
-        '<span class="cscore '+scoreClass(conf.quality)+'">\u2605 '+conf.quality+'%</span>'+
-        '<span class="ctext">'+esc(conf.rationale)+'</span>';
-    }
-
-    // \u2500\u2500 Build entry element \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function buildEntry(change){
-      const div=document.createElement('div');
-      div.className='entry';
-      div.id='entry-'+change.id;
-
-      const hookTag = change.hookContext
-        ? '<span class="hook-tag">'+esc(change.hookContext.toolName)+'</span>'
-        : '';
-
-      const confSection = '<div class="conf-bar" id="conf-'+change.id+'">'+buildConfHtml(change.confidence||null)+'</div>';
-
-      div.innerHTML=
-        '<div class="entry-header">'+
-          '<span class="badge '+esc(change.changeType)+'">'+change.changeType.slice(0,3).toUpperCase()+'</span>'+
-          '<span class="entry-path" data-open-file="'+esc(change.filePath)+'" title="'+esc(change.filePath)+'">'+esc(change.relPath)+'</span>'+
-          '<span class="entry-stats">'+
-            '<span class="s-add">+'+change.addedLines+'</span>'+
-            '<span class="s-rem">\u2212'+change.removedLines+'</span>'+
-            '<span class="s-tok">~'+fmtNum(change.estimatedTokens)+'t</span>'+
-          '</span>'+
-          hookTag+
-          '<span class="entry-time">'+fmtTime(change.timestamp)+'</span>'+
-          '<span class="expand-icon">\u203A</span>'+
-        '</div>'+
-        confSection+
-        '<div class="diff-view" id="diff-'+change.id+'">'+buildDiffHtml(change)+'</div>';
-
-      return div;
-    }
-
-    // \u2500\u2500 Render full feed \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function renderFeed(changes){
-      const feed=document.getElementById('feed');
-      feed.innerHTML='';
-      if(!changes||changes.length===0){
-        feed.innerHTML='<div class="empty-state">No file changes detected yet.<br>Start a monitoring session, then run Claude Code.</div>';
-        return;
-      }
-      // Newest first
-      [...changes].reverse().forEach(c=>feed.appendChild(buildEntry(c)));
-    }
-
-    // \u2500\u2500 Append single new change \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function appendChange(change){
-      const feed=document.getElementById('feed');
-      const empty=feed.querySelector('.empty-state');
-      if(empty) empty.remove();
-      feed.insertBefore(buildEntry(change), feed.firstChild);
-      appState.changes.push(change);
-      saveState();
-    }
-
-    // \u2500\u2500 Toggle expand \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function toggleEntry(entry){
-      const isOpen = entry.classList.contains('open');
-      // Close all others for cleanliness (optional \u2014 comment out to allow multiple open)
-      // document.querySelectorAll('.entry.open').forEach(e=>e.classList.remove('open'));
-      entry.classList.toggle('open', !isOpen);
-    }
-
-    // \u2500\u2500 Prompt score \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function renderPromptScore(score){
-      const result=document.getElementById('prompt-result');
-      if(!score){
-        result.innerHTML='<span class="scoring-hint">Unavailable \u2014 configure an API key via <em>Gofi: Set Anthropic API Key</em>.</span>';
-        result.style.display='block';
-        return;
-      }
-      const clar=document.getElementById('pr-clarity');
-      clar.className='cscore '+scoreClass(score.clarity);
-      clar.textContent='Clarity '+score.clarity+'%';
-      const comp=document.getElementById('pr-completeness');
-      comp.className='cscore '+scoreClass(score.completeness);
-      comp.textContent='Completeness '+score.completeness+'%';
-      document.getElementById('pr-issues').innerHTML=score.issues.length
-        ?score.issues.map(i=>'<li>'+esc(i)+'</li>').join('')
-        :'<li style="color:var(--vscode-descriptionForeground)">No issues detected</li>';
-      result.style.display='block';
-    }
-
-    // \u2500\u2500 Update confidence \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function updateConfidence(changeId, conf){
-      const bar=document.getElementById('conf-'+changeId);
-      if(bar) bar.innerHTML=buildConfHtml(conf);
-      const c=appState.changes.find(x=>x.id===changeId);
-      if(c){ c.confidence=conf; saveState(); }
-    }
-
-    // \u2500\u2500 State persistence \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    function saveState(){
-      // Keep only last 200 changes in persisted state to avoid memory bloat
-      vscode.setState({
-        changes: appState.changes.slice(-200),
-        stats: appState.stats
-      });
-    }
-
-    // \u2500\u2500 Event delegation \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    document.addEventListener('click', function(e){
-      const fileEl = e.target.closest('[data-open-file]');
-      if(fileEl){
-        const header = fileEl.closest('.entry-header');
-        // If clicking the path span, open file; don't also toggle
-        if(fileEl.classList.contains('entry-path')){
-          e.stopPropagation();
-          vscode.postMessage({type:'openFile', filePath:fileEl.dataset.openFile});
-          return;
-        }
-      }
-
-      const header = e.target.closest('.entry-header');
-      if(header){
-        toggleEntry(header.closest('.entry'));
-        return;
-      }
-
-      const promptHdr=e.target.closest('.prompt-hdr');
-      if(promptHdr){
-        document.getElementById('prompt-section').classList.toggle('open');
-        return;
-      }
-
-      if(e.target.id==='btn-score-prompt'){
-        const prompt=document.getElementById('prompt-input').value.trim();
-        if(!prompt) return;
-        document.getElementById('btn-score-prompt').disabled=true;
-        document.getElementById('scoring-hint').style.display='inline';
-        document.getElementById('prompt-result').style.display='none';
-        vscode.postMessage({type:'scorePrompt',prompt});
-        return;
-      }
-
-      const btn = e.target.closest('[data-action]');
-      if(btn){
-        const action=btn.dataset.action;
-        if(action==='start') vscode.postMessage({type:'startSession'});
-        else if(action==='stop') vscode.postMessage({type:'stopSession'});
-        else if(action==='clear') vscode.postMessage({type:'clearSession'});
-      }
-    });
-
-    // \u2500\u2500 Message handler \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    window.addEventListener('message', function(event){
-      const msg = event.data;
-      switch(msg.type){
-        case 'init':
-          appState.changes = msg.changes || [];
-          appState.stats   = msg.stats;
-          renderStats(msg.stats);
-          renderFeed(msg.changes);
-          break;
-
-        case 'statsUpdate':
-          appState.stats = msg.stats;
-          renderStats(msg.stats);
-          break;
-
-        case 'fileChangeAdded':
-          appendChange(msg.change);
-          if(appState.stats){
-            appState.stats.fileChangeCount=(appState.stats.fileChangeCount||0)+1;
-          }
-          break;
-
-        case 'confidenceUpdate':
-          updateConfidence(msg.changeId, msg.confidence);
-          break;
-
-        case 'sessionCleared':
-          appState.changes=[];
-          appState.stats=null;
-          renderFeed([]);
-          renderStats({isRunning:false,startTime:null,durationMs:0,fileChangeCount:0,
-            totalAddedLines:0,totalRemovedLines:0,totalEstimatedTokens:0,
-            totalEstimatedCostUsd:0,uniqueFilesChanged:0});
-          break;
-
-        case 'sessionStarted':
-          if(appState.stats) appState.stats.isRunning=true;
-          renderStats(appState.stats);
-          break;
-
-        case 'sessionStopped':
-          if(appState.stats) appState.stats.isRunning=false;
-          renderStats(appState.stats);
-          break;
-
-        case 'promptDetected':
-          // Auto-captured from Claude Code session \u2014 open section and populate
-          document.getElementById('prompt-section').classList.add('open');
-          document.getElementById('prompt-input').value=msg.prompt;
-          document.getElementById('prompt-result').style.display='none';
-          document.getElementById('auto-badge').style.display='inline';
-          document.getElementById('prompt-section').scrollIntoView({behavior:'smooth',block:'nearest'});
-          break;
-
-        case 'promptScoring':
-          document.getElementById('btn-score-prompt').disabled=true;
-          document.getElementById('scoring-hint').style.display='inline';
-          break;
-
-        case 'promptScoreResult':
-          document.getElementById('btn-score-prompt').disabled=false;
-          document.getElementById('scoring-hint').style.display='none';
-          renderPromptScore(msg.score);
-          break;
-      }
-      saveState();
-    });
-
-    // Hide auto-badge when user manually edits
-    document.getElementById('prompt-input').addEventListener('input',function(){
-      document.getElementById('auto-badge').style.display='none';
-    });
-
-    // \u2500\u2500 Bootstrap \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-
-    if(appState.stats)  renderStats(appState.stats);
-    if(appState.changes.length>0) renderFeed(appState.changes);
-
-    // Tell extension we are ready \u2014 it will reply with 'init'
-    vscode.postMessage({type:'ready'});
-  })();</script>
+  <script src="${scriptUri}"></script>
 </body>
 </html>`
     );
@@ -11255,29 +11215,73 @@ var SessionPanel = class {
 
 // src/extension.ts
 var statsTimer;
+function saveLiveSession(context, diffTracker, contextReadTracker) {
+  context.workspaceState.update("gofi.liveSession", {
+    changes: diffTracker.changes,
+    contextReads: contextReadTracker.entries
+  });
+}
+function getSavedSessions(context) {
+  return context.workspaceState.get("gofi.sessionHistory") ?? [];
+}
+function archiveSession(context, diffTracker, contextReadTracker) {
+  const stats = diffTracker.stats;
+  if (stats.fileChangeCount === 0 && contextReadTracker.entries.length === 0) {
+    return null;
+  }
+  const session = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+    savedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    changes: diffTracker.changes,
+    contextReads: contextReadTracker.entries,
+    stats
+  };
+  const history = getSavedSessions(context);
+  history.unshift(session);
+  context.workspaceState.update("gofi.sessionHistory", history.slice(0, 10));
+  return session;
+}
 function activate(context) {
   const diffTracker = new DiffTracker();
+  const contextReadTracker = new ContextReadTracker();
+  try {
+    const savedLive = context.workspaceState.get("gofi.liveSession");
+    if (savedLive) {
+      diffTracker.restore(savedLive.changes);
+      contextReadTracker.restore(savedLive.contextReads ?? []);
+    }
+  } catch {
+    context.workspaceState.update("gofi.liveSession", void 0);
+  }
   const fsWatcher = new FSWatcher(diffTracker);
   const hookWatcher = new HookWatcher();
   const promptWatcher = new PromptWatcher();
   const sessionPanel = new SessionPanel(context.extensionUri);
-  const provider = vscode7.workspace.getConfiguration("gofi").get("aiProvider", "claude") === "claude" ? new ClaudeConfidenceProvider() : new NoOpProvider();
+  const provider = vscode8.workspace.getConfiguration("gofi").get("aiProvider", "claude") === "claude" ? new ClaudeConfidenceProvider() : new NoOpProvider();
   context.subscriptions.push(
-    vscode7.window.registerWebviewViewProvider(
+    sessionPanel.onReady(() => {
+      sessionPanel.send({
+        type: "init",
+        stats: diffTracker.stats,
+        changes: diffTracker.changes,
+        contextReads: contextReadTracker.entries,
+        savedSessions: getSavedSessions(context)
+      });
+    })
+  );
+  context.subscriptions.push(
+    vscode8.window.registerWebviewViewProvider(
       SessionPanel.VIEW_ID,
       sessionPanel,
       { webviewOptions: { retainContextWhenHidden: true } }
     )
   );
   context.subscriptions.push(
-    sessionPanel.onReady(() => {
-      sessionPanel.send({ type: "init", stats: diffTracker.stats, changes: diffTracker.changes });
-    })
-  );
-  context.subscriptions.push(
     diffTracker.onFileChange((change) => {
+      contextReadTracker.onFileChange();
       sessionPanel.send({ type: "fileChangeAdded", change });
       sessionPanel.send({ type: "statsUpdate", stats: diffTracker.stats });
+      saveLiveSession(context, diffTracker, contextReadTracker);
     })
   );
   context.subscriptions.push(
@@ -11297,14 +11301,38 @@ function activate(context) {
       sessionPanel.send({ type: "promptScoreResult", score });
     })
   );
+  let promptScoreGen = 0;
+  let promptScoreTimer;
   context.subscriptions.push(
-    promptWatcher.onPrompt(async (prompt) => {
-      sessionPanel.send({ type: "promptDetected", prompt });
-      if (provider.isConfigured() && vscode7.workspace.getConfiguration("gofi").get("enableConfidenceScoring")) {
-        sessionPanel.send({ type: "promptScoring" });
-        const score = await provider.scorePrompt(prompt);
-        sessionPanel.send({ type: "promptScoreResult", score });
+    promptWatcher.onPrompt((detection) => {
+      contextReadTracker.onPromptDetected(detection);
+      sessionPanel.send({ type: "promptDetected", prompt: detection.prompt });
+      if (!provider.isConfigured() || !vscode8.workspace.getConfiguration("gofi").get("enableConfidenceScoring")) {
+        return;
       }
+      if (promptScoreTimer) {
+        clearTimeout(promptScoreTimer);
+      }
+      const gen = ++promptScoreGen;
+      promptScoreTimer = setTimeout(async () => {
+        sessionPanel.send({ type: "promptScoring" });
+        const timeout = new Promise((resolve) => setTimeout(() => resolve(null), 2e4));
+        const score = await Promise.race([
+          provider.scorePrompt(detection.context || detection.prompt),
+          timeout
+        ]);
+        if (gen === promptScoreGen) {
+          sessionPanel.send({ type: "promptScoreResult", score });
+        } else {
+          sessionPanel.send({ type: "promptScoreResult", score: null });
+        }
+      }, 800);
+    })
+  );
+  context.subscriptions.push(
+    contextReadTracker.onEntry((entry) => {
+      sessionPanel.send({ type: "contextReadAdded", entry });
+      saveLiveSession(context, diffTracker, contextReadTracker);
     })
   );
   context.subscriptions.push(
@@ -11318,44 +11346,60 @@ function activate(context) {
     }
   }, 1e3);
   context.subscriptions.push(
-    vscode7.commands.registerCommand("gofi.startSession", () => {
+    vscode8.commands.registerCommand("gofi.startSession", () => {
       diffTracker.startSession();
       sessionPanel.send({ type: "sessionStarted" });
       sessionPanel.send({ type: "statsUpdate", stats: diffTracker.stats });
     }),
-    vscode7.commands.registerCommand("gofi.stopSession", () => {
+    vscode8.commands.registerCommand("gofi.stopSession", () => {
       diffTracker.stopSession();
       sessionPanel.send({ type: "sessionStopped" });
       sessionPanel.send({ type: "statsUpdate", stats: diffTracker.stats });
     }),
-    vscode7.commands.registerCommand("gofi.clearSession", () => {
+    vscode8.commands.registerCommand("gofi.clearSession", () => {
+      const archived = archiveSession(context, diffTracker, contextReadTracker);
       diffTracker.clearSession();
+      contextReadTracker.clearEntries();
+      saveLiveSession(context, diffTracker, contextReadTracker);
       sessionPanel.send({ type: "sessionCleared" });
+      sessionPanel.send({ type: "contextReadsCleared" });
+      if (archived) {
+        sessionPanel.send({ type: "sessionArchived", session: archived });
+      }
     }),
-    vscode7.commands.registerCommand("gofi.installHook", () => {
+    vscode8.commands.registerCommand("gofi.installHook", () => {
       installClaudeHook(context);
     }),
-    vscode7.commands.registerCommand("gofi.setApiKey", async () => {
-      const key = await vscode7.window.showInputBox({
-        prompt: "Enter your Anthropic API key",
+    vscode8.commands.registerCommand("gofi.setApiKey", async () => {
+      const key = await vscode8.window.showInputBox({
+        prompt: "Enter your Anthropic API key (leave blank to use your Claude Code account)",
         password: true,
-        placeHolder: "sk-ant-..."
+        placeHolder: "sk-ant-... (optional)"
       });
       if (key !== void 0) {
-        await vscode7.workspace.getConfiguration("gofi").update("anthropicApiKey", key, vscode7.ConfigurationTarget.Global);
-        await vscode7.workspace.getConfiguration("gofi").update("enableConfidenceScoring", key.length > 0, vscode7.ConfigurationTarget.Global);
-        vscode7.window.showInformationMessage(
-          key.length > 0 ? "Gofi: API key saved. Confidence scoring enabled." : "Gofi: API key cleared. Confidence scoring disabled."
+        await vscode8.workspace.getConfiguration("gofi").update("anthropicApiKey", key, vscode8.ConfigurationTarget.Global);
+        if (key.length > 0) {
+          await vscode8.workspace.getConfiguration("gofi").update("enableConfidenceScoring", true, vscode8.ConfigurationTarget.Global);
+        }
+        vscode8.window.showInformationMessage(
+          key.length > 0 ? "Gofi: API key saved. Confidence scoring enabled." : "Gofi: API key cleared. Confidence scoring will use your Claude Code account."
         );
       }
+    })
+  );
+  context.subscriptions.push(
+    sessionPanel.onDeleteSession((sessionId) => {
+      const sessions = getSavedSessions(context);
+      context.workspaceState.update("gofi.sessionHistory", sessions.filter((s2) => s2.id !== sessionId));
+      sessionPanel.send({ type: "sessionDeleted", sessionId });
     })
   );
   fsWatcher.start();
   hookWatcher.start();
   promptWatcher.start();
-  context.subscriptions.push(diffTracker, fsWatcher, hookWatcher, promptWatcher, sessionPanel);
+  context.subscriptions.push(diffTracker, fsWatcher, hookWatcher, promptWatcher, sessionPanel, contextReadTracker);
   if (diffTracker.isRunning) {
-    vscode7.window.setStatusBarMessage("$(eye) Gofi monitoring", 3e3);
+    vscode8.window.setStatusBarMessage("$(eye) Gofi monitoring", 3e3);
   }
 }
 function deactivate() {
@@ -11364,19 +11408,19 @@ function deactivate() {
   }
 }
 async function installClaudeHook(context) {
-  const hookScriptSrc = path4.join(context.extensionPath, "scripts", "gofi-hook.js");
-  const claudeDir = path4.join(os3.homedir(), ".claude");
-  const hookScriptDst = path4.join(claudeDir, "gofi-hook.js");
-  const settingsPath = path4.join(claudeDir, "settings.json");
+  const hookScriptSrc = path5.join(context.extensionPath, "scripts", "gofi-hook.js");
+  const claudeDir = path5.join(os4.homedir(), ".claude");
+  const hookScriptDst = path5.join(claudeDir, "gofi-hook.js");
+  const settingsPath = path5.join(claudeDir, "settings.json");
   try {
-    fs4.mkdirSync(claudeDir, { recursive: true });
-    fs4.copyFileSync(hookScriptSrc, hookScriptDst);
+    fs6.mkdirSync(claudeDir, { recursive: true });
+    fs6.copyFileSync(hookScriptSrc, hookScriptDst);
     let settings = {};
-    if (fs4.existsSync(settingsPath)) {
+    if (fs6.existsSync(settingsPath)) {
       try {
-        settings = JSON.parse(fs4.readFileSync(settingsPath, "utf8"));
+        settings = JSON.parse(fs6.readFileSync(settingsPath, "utf8"));
       } catch {
-        const answer = await vscode7.window.showWarningMessage(
+        const answer = await vscode8.window.showWarningMessage(
           "Gofi: ~/.claude/settings.json exists but could not be parsed. Overwrite?",
           "Overwrite",
           "Cancel"
@@ -11404,18 +11448,18 @@ async function installClaudeHook(context) {
     } else {
       existing.push(hookEntry);
     }
-    fs4.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf8");
-    const logPath = path4.join(claudeDir, "gofi-events.jsonl");
-    vscode7.window.showInformationMessage(
+    fs6.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), "utf8");
+    const logPath = path5.join(claudeDir, "gofi-events.jsonl");
+    vscode8.window.showInformationMessage(
       `Gofi: Hook installed. Events will log to ${logPath}`,
       "Open settings.json"
     ).then((action) => {
       if (action === "Open settings.json") {
-        vscode7.window.showTextDocument(vscode7.Uri.file(settingsPath));
+        vscode8.window.showTextDocument(vscode8.Uri.file(settingsPath));
       }
     });
   } catch (err) {
-    vscode7.window.showErrorMessage(`Gofi: Failed to install hook \u2014 ${err}`);
+    vscode8.window.showErrorMessage(`Gofi: Failed to install hook \u2014 ${err}`);
   }
 }
 // Annotate the CommonJS export names for ESM import in node:

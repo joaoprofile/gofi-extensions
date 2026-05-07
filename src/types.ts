@@ -66,6 +66,25 @@ export interface SessionStats {
   uniqueFilesChanged: number;
 }
 
+// ─── Prompt detection ────────────────────────────────────────────────────────
+
+export interface PromptDetection {
+  prompt: string;       // the latest user message text (shown in the sidebar textarea)
+  context: string;      // recent conversation turns + latest prompt (sent to the scorer)
+  filePath: string;     // JSONL file path — used by ContextReadTracker for delta reads
+  fileOffset: number;   // byte offset in the JSONL at the moment this prompt was written
+}
+
+// ─── Context reads ────────────────────────────────────────────────────────────
+
+export interface ContextReadEntry {
+  id: string;
+  timestamp: string;
+  prompt: string;             // truncated prompt label
+  estimatedTokens: number;
+  estimatedCostUsd: number;
+}
+
 // ─── AI provider abstraction ──────────────────────────────────────────────────
 
 export interface AIProvider {
@@ -100,10 +119,20 @@ export interface HookEventContext {
   hookEventName: string;
 }
 
+// ─── Saved sessions ───────────────────────────────────────────────────────────
+
+export interface SavedSession {
+  id: string;
+  savedAt: string;
+  changes: FileChange[];
+  contextReads: ContextReadEntry[];
+  stats: SessionStats;
+}
+
 // ─── WebView message types ────────────────────────────────────────────────────
 
 export type ExtToWebviewMsg =
-  | { type: 'init'; stats: SessionStats; changes: FileChange[] }
+  | { type: 'init'; stats: SessionStats; changes: FileChange[]; contextReads: ContextReadEntry[]; savedSessions: SavedSession[] }
   | { type: 'statsUpdate'; stats: SessionStats }
   | { type: 'fileChangeAdded'; change: FileChange }
   | { type: 'confidenceUpdate'; changeId: string; confidence: ConfidenceResult }
@@ -112,7 +141,11 @@ export type ExtToWebviewMsg =
   | { type: 'sessionStopped' }
   | { type: 'promptScoring' }
   | { type: 'promptScoreResult'; score: PromptScore | null }
-  | { type: 'promptDetected'; prompt: string };
+  | { type: 'promptDetected'; prompt: string }
+  | { type: 'contextReadAdded'; entry: ContextReadEntry }
+  | { type: 'contextReadsCleared' }
+  | { type: 'sessionArchived'; session: SavedSession }
+  | { type: 'sessionDeleted'; sessionId: string };
 
 export type WebviewToExtMsg =
   | { type: 'ready' }
@@ -120,4 +153,6 @@ export type WebviewToExtMsg =
   | { type: 'stopSession' }
   | { type: 'clearSession' }
   | { type: 'openFile'; filePath: string }
-  | { type: 'scorePrompt'; prompt: string };
+  | { type: 'scorePrompt'; prompt: string }
+  | { type: 'copyReview'; text: string }
+  | { type: 'deleteSession'; sessionId: string };
