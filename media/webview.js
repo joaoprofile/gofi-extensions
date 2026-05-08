@@ -533,17 +533,19 @@
   // ── Notification sound ─────────────────────────────────────────────────────
 
   let soundEnabled = false;
+  let audioCtx = null;
 
   function playPing() {
+    if (!audioCtx) { return; }
     try {
-      const ctx = new AudioContext();
-      const now = ctx.currentTime;
+      if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+      const now = audioCtx.currentTime;
       [[1047, now, 0.3], [1319, now + 0.12, 0.2]].forEach(function (args) {
         const freq = args[0], start = args[1], vol = args[2];
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        gain.connect(audioCtx.destination);
         osc.type = 'sine';
         osc.frequency.value = freq;
         gain.gain.setValueAtTime(0, start);
@@ -552,7 +554,6 @@
         osc.start(start);
         osc.stop(start + 0.45);
       });
-      setTimeout(function () { ctx.close(); }, 700);
     } catch (e) { /* AudioContext may not be available in all webview environments */ }
   }
 
@@ -562,6 +563,9 @@
   if (btnSound) {
     btnSound.addEventListener('click', function () {
       soundEnabled = !soundEnabled;
+      if (soundEnabled && !audioCtx) {
+        try { audioCtx = new AudioContext(); } catch (e) { soundEnabled = false; }
+      }
       if (iconMute) { iconMute.classList.toggle('hidden', soundEnabled); }
       if (iconSound) { iconSound.classList.toggle('hidden', !soundEnabled); }
       btnSound.classList.toggle('on', soundEnabled);
