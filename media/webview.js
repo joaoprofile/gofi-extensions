@@ -61,8 +61,8 @@
     if (sFiles) { sFiles.textContent = stats.uniqueFilesChanged; }
     if (sAdded) { sAdded.textContent = '+' + stats.totalAddedLines; }
     if (sRemoved) { sRemoved.textContent = '−' + stats.totalRemovedLines; }
-    if (sTokens) { sTokens.textContent = fmtNum(stats.totalEstimatedTokens); }
-    if (sCost) { sCost.textContent = fmtCost(stats.totalEstimatedCostUsd); }
+    if (sTokens) { sTokens.textContent = fmtNum((stats.totalEstimatedTokens || 0) + readsTotalTokens); }
+    if (sCost) { sCost.textContent = fmtCost((stats.totalEstimatedCostUsd || 0) + readsTotalCost); }
     if (sDur) { sDur.textContent = fmtDur(stats.durationMs); }
 
     const dot = document.getElementById('status-dot');
@@ -181,6 +181,22 @@
     return div;
   }
 
+  // ── Feed count badge ───────────────────────────────────────────────────────
+
+  function setFeedCount(n) {
+    const el = document.getElementById('feed-count');
+    if (el) { el.textContent = String(n); }
+  }
+
+  function pingFeedCount() {
+    const el = document.getElementById('feed-count');
+    if (!el) { return; }
+    el.classList.remove('ping');
+    void el.offsetWidth; // reflow to restart animation
+    el.classList.add('ping');
+    el.addEventListener('animationend', function () { el.classList.remove('ping'); }, { once: true });
+  }
+
   // ── Render full feed ───────────────────────────────────────────────────────
 
   function renderFeed(changes) {
@@ -189,9 +205,11 @@
     feed.innerHTML = '';
     if (!changes || changes.length === 0) {
       feed.innerHTML = '<div class="empty-state">No file changes detected yet.<br>Start a monitoring session, then run Claude Code.</div>';
+      setFeedCount(0);
       return;
     }
     changes.slice().reverse().forEach(function (c) { feed.appendChild(buildEntry(c)); });
+    setFeedCount(changes.length);
   }
 
   // ── Append single new change ───────────────────────────────────────────────
@@ -203,6 +221,8 @@
     if (empty) { empty.remove(); }
     feed.insertBefore(buildEntry(change), feed.firstChild);
     appState.changes.push(change);
+    setFeedCount(appState.changes.length);
+    pingFeedCount();
     saveState();
   }
 
@@ -238,9 +258,11 @@
   // ── Context reads ──────────────────────────────────────────────────────────
 
   let readsTotalCost = 0;
+  let readsTotalTokens = 0;
 
   function appendRead(entry) {
     readsTotalCost += entry.estimatedCostUsd;
+    readsTotalTokens += entry.estimatedTokens || 0;
     const readsCount = document.getElementById('reads-count');
     const readsBody = document.getElementById('reads-body');
     const readsTotal = document.getElementById('reads-total');
@@ -261,6 +283,7 @@
 
   function clearReads() {
     readsTotalCost = 0;
+    readsTotalTokens = 0;
     const readsBody = document.getElementById('reads-body');
     const readsCount = document.getElementById('reads-count');
     const readsTotal = document.getElementById('reads-total');
@@ -272,6 +295,13 @@
   }
 
   // ── Past sessions ──────────────────────────────────────────────────────────
+
+  let sessionsTotalCost = 0;
+
+  function updateSessionsTotal() {
+    const el = document.getElementById('sessions-total');
+    if (el) { el.textContent = fmtCost(sessionsTotalCost); }
+  }
 
   function buildSessionRow(session) {
     const s = session.stats;
@@ -303,9 +333,11 @@
       section.style.display = 'none';
       return;
     }
+    sessionsTotalCost = sessions.reduce(function (s, sess) { return s + (sess.stats.totalEstimatedCostUsd || 0); }, 0);
     sessions.forEach(function (s) { body.appendChild(buildSessionRow(s)); });
     const count = document.getElementById('sessions-count');
     if (count) { count.textContent = String(sessions.length); }
+    updateSessionsTotal();
     section.style.display = '';
   }
 
@@ -314,14 +346,24 @@
     const section = document.getElementById('sessions-section');
     const count = document.getElementById('sessions-count');
     if (!body || !section) { return; }
+    sessionsTotalCost += session.stats.totalEstimatedCostUsd || 0;
     body.insertBefore(buildSessionRow(session), body.firstChild);
     if (count) { count.textContent = String(parseInt(count.textContent || '0', 10) + 1); }
+    updateSessionsTotal();
     section.style.display = '';
   }
 
   function removeSessionRow(sessionId) {
     const row = document.querySelector('[data-session-id="' + sessionId + '"]');
-    if (row) { row.remove(); }
+    if (row) {
+      const costEl = row.querySelector('.session-cost');
+      if (costEl) {
+        const parsed = parseFloat((costEl.textContent || '').replace('$', ''));
+        if (!isNaN(parsed)) { sessionsTotalCost = Math.max(0, sessionsTotalCost - parsed); }
+      }
+      row.remove();
+      updateSessionsTotal();
+    }
     const body = document.getElementById('sessions-body');
     const section = document.getElementById('sessions-section');
     const count = document.getElementById('sessions-count');
@@ -369,6 +411,9 @@
 
     const promptHdr = e.target.closest('.prompt-hdr');
     if (promptHdr) { const s = document.getElementById('prompt-section'); if (s) { s.classList.toggle('open'); } return; }
+
+    const feedHdr = e.target.closest('.feed-hdr');
+    if (feedHdr) { const s = document.getElementById('feed-section'); if (s) { s.classList.toggle('open'); } return; }
 
     const readsHdr = e.target.closest('.reads-hdr');
     if (readsHdr) { const s = document.getElementById('reads-section'); if (s) { s.classList.toggle('open'); } return; }
@@ -517,8 +562,8 @@
   if (btnSound) {
     btnSound.addEventListener('click', function () {
       soundEnabled = !soundEnabled;
-      if (iconMute) { iconMute.style.display = soundEnabled ? 'none' : ''; }
-      if (iconSound) { iconSound.style.display = soundEnabled ? '' : 'none'; }
+      if (iconMute) { iconMute.classList.toggle('hidden', soundEnabled); }
+      if (iconSound) { iconSound.classList.toggle('hidden', !soundEnabled); }
       btnSound.classList.toggle('on', soundEnabled);
     });
   }

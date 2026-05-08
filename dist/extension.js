@@ -10870,13 +10870,16 @@ var SessionPanel = class {
     button.primary:hover:not(:disabled){background:var(--vscode-button-hoverBackground)}
     .provider-badge{
       margin-left:auto;
-      font-size:9px;
-      padding:2px 6px;
+      font-size:11px;
+      font-weight:600;
+      padding:3px 8px;
       border-radius:10px;
-      background:var(--vscode-badge-background);
-      color:var(--vscode-badge-foreground);
+      background:#1a1a1a;
+      color:#e8e8e8;
       white-space:nowrap;
+      display:inline-flex;align-items:center;gap:5px;
     }
+    .provider-badge svg{width:13px;height:13px;flex-shrink:0}
     /* \u2500\u2500 Status bar \u2500\u2500 */
     .status-bar{
       display:flex;
@@ -10892,11 +10895,29 @@ var SessionPanel = class {
     .dot.active{background:#4ec9b0;animation:pulse 2s ease-in-out infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
     /* \u2500\u2500 Feed \u2500\u2500 */
-    .feed{
-      flex:1;
-      overflow-y:auto;
-      overflow-x:hidden;
+    /* \u2500\u2500 Current session feed \u2500\u2500 */
+    .feed-section{flex:1;display:flex;flex-direction:column;min-height:0}
+    .feed-hdr{
+      display:flex;align-items:center;gap:5px;padding:5px 8px;
+      cursor:pointer;user-select:none;font-size:11px;font-weight:600;
+      background:var(--vscode-sideBarSectionHeader-background);
+      flex-shrink:0;border-bottom:1px solid var(--vscode-panel-border);
     }
+    .feed-hdr:hover{background:var(--vscode-list-hoverBackground)}
+    .feed-section.open .feed-hdr .expand-icon{transform:rotate(90deg)}
+    .feed{display:none;flex:1;overflow-y:auto;overflow-x:hidden}
+    .feed-section.open .feed{display:block}
+    .feed-count{
+      font-size:9px;padding:1px 5px;border-radius:10px;
+      background:rgba(88,166,255,.15);color:#79b8ff;font-weight:600;
+      transition:background .2s,color .2s;
+    }
+    @keyframes feed-ping{
+      0%  {box-shadow:0 0 0 0 rgba(230,162,60,.8);background:rgba(230,162,60,.35);color:#e6a23c}
+      60% {box-shadow:0 0 0 5px rgba(230,162,60,0)}
+      100%{box-shadow:0 0 0 0 rgba(230,162,60,0);background:rgba(88,166,255,.15);color:#79b8ff}
+    }
+    .feed-count.ping{animation:feed-ping .7s ease-out forwards}
     .empty-state{
       padding:32px 16px;
       text-align:center;
@@ -11114,6 +11135,7 @@ var SessionPanel = class {
       font-size:9px;padding:1px 5px;border-radius:10px;
       background:rgba(230,162,60,.15);color:#e6a23c;font-weight:600;
     }
+    .sessions-total{margin-left:auto;font-size:10px;color:var(--vscode-descriptionForeground)}
     .session-row{
       display:flex;align-items:center;gap:5px;padding:4px 8px;
       border-bottom:1px solid var(--vscode-panel-border);font-size:10px;
@@ -11138,6 +11160,7 @@ var SessionPanel = class {
     .btn-sound:hover{opacity:.8}
     .btn-sound.on{opacity:1;color:#4ec9b0}
     .btn-sound svg{width:16px;height:16px;fill:currentColor}
+    .hidden{display:none}
   </style>
 </head>
 <body>
@@ -11154,10 +11177,24 @@ var SessionPanel = class {
       <button class="primary" id="btn-start" data-action="start">Start</button>
       <button id="btn-stop" data-action="stop" disabled>Stop</button>
       <button id="btn-clear" data-action="clear">Clear</button>
-      <span class="provider-badge" id="provider-badge">Claude</span>
+      <span class="provider-badge" id="provider-badge">
+        <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="#D97757">
+          <g transform="translate(8,8)">
+            <rect x="-1" y="-6.5" width="2" height="4.8" rx="1" transform="rotate(0)"/>
+            <rect x="-1" y="-6.5" width="2" height="4.8" rx="1" transform="rotate(45)"/>
+            <rect x="-1" y="-6.5" width="2" height="4.8" rx="1" transform="rotate(90)"/>
+            <rect x="-1" y="-6.5" width="2" height="4.8" rx="1" transform="rotate(135)"/>
+            <rect x="-1" y="-6.5" width="2" height="4.8" rx="1" transform="rotate(180)"/>
+            <rect x="-1" y="-6.5" width="2" height="4.8" rx="1" transform="rotate(225)"/>
+            <rect x="-1" y="-6.5" width="2" height="4.8" rx="1" transform="rotate(270)"/>
+            <rect x="-1" y="-6.5" width="2" height="4.8" rx="1" transform="rotate(315)"/>
+          </g>
+        </svg>
+        Claude
+      </span>
       <button class="btn-sound" id="btn-sound" title="Toggle notification sound">
         <svg id="icon-mute" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M8 1.5a.5.5 0 0 1 .5.5v11.5a.5.5 0 0 1-.854.354L4.293 10.5H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h2.293L7.646 1.854A.5.5 0 0 1 8 1.5zM2 6.5v3h2.5l3 3V3.5l-3 3H2zM13.354 5.146a.5.5 0 0 1 0 .708l-1.5 1.5 1.5 1.5a.5.5 0 0 1-.708.708l-1.5-1.5-1.5 1.5a.5.5 0 0 1-.708-.708l1.5-1.5-1.5-1.5a.5.5 0 0 1 .708-.708l1.5 1.5 1.5-1.5a.5.5 0 0 1 .708 0z"/></svg>
-        <svg id="icon-sound" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="display:none"><path d="M8 1.5a.5.5 0 0 1 .5.5v11.5a.5.5 0 0 1-.854.354L4.293 10.5H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h2.293L7.646 1.854A.5.5 0 0 1 8 1.5zM2 6.5v3h2.5l3 3V3.5l-3 3H2zM11.536 4.5a.5.5 0 0 1 .707.017A4.49 4.49 0 0 1 13.5 7.75a4.49 4.49 0 0 1-1.257 3.233.5.5 0 0 1-.724-.69A3.49 3.49 0 0 0 12.5 7.75a3.49 3.49 0 0 0-.98-2.493.5.5 0 0 1 .016-.757zM10.121 6.121a.5.5 0 0 1 .707.014 2.49 2.49 0 0 1 0 3.23.5.5 0 0 1-.721-.693 1.49 1.49 0 0 0 0-1.844.5.5 0 0 1 .014-.707z"/></svg>
+        <svg id="icon-sound" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" class="hidden"><path d="M8 1.5a.5.5 0 0 1 .5.5v11.5a.5.5 0 0 1-.854.354L4.293 10.5H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h2.293L7.646 1.854A.5.5 0 0 1 8 1.5zM2 6.5v3h2.5l3 3V3.5l-3 3H2zM11.536 4.5a.5.5 0 0 1 .707.017A4.49 4.49 0 0 1 13.5 7.75a4.49 4.49 0 0 1-1.257 3.233.5.5 0 0 1-.724-.69A3.49 3.49 0 0 0 12.5 7.75a3.49 3.49 0 0 0-.98-2.493.5.5 0 0 1 .016-.757zM10.121 6.121a.5.5 0 0 1 .707.014 2.49 2.49 0 0 1 0 3.23.5.5 0 0 1-.721-.693 1.49 1.49 0 0 0 0-1.844.5.5 0 0 1 .014-.707z"/></svg>
       </button>
     </div>
   </div>
@@ -11196,11 +11233,19 @@ var SessionPanel = class {
       <span class="expand-icon">\u203A</span>
       <span>Past Sessions</span>
       <span class="sessions-count" id="sessions-count">0</span>
+      <span class="sessions-total" id="sessions-total">$0.00</span>
     </div>
     <div class="sessions-body" id="sessions-body"></div>
   </div>
-  <div class="feed" id="feed">
-    <div class="empty-state">No file changes detected yet.<br>Start a monitoring session, then run Claude Code.</div>
+  <div class="feed-section open" id="feed-section">
+    <div class="feed-hdr">
+      <span class="expand-icon">\u203A</span>
+      <span>Current Session</span>
+      <span class="feed-count" id="feed-count">0</span>
+    </div>
+    <div class="feed" id="feed">
+      <div class="empty-state">No file changes detected yet.<br>Start a monitoring session, then run Claude Code.</div>
+    </div>
   </div>
 
   <script src="${scriptUri}"></script>
@@ -11229,12 +11274,18 @@ function archiveSession(context, diffTracker, contextReadTracker) {
   if (stats.fileChangeCount === 0 && contextReadTracker.entries.length === 0) {
     return null;
   }
+  const readsCost = contextReadTracker.entries.reduce((s2, e2) => s2 + e2.estimatedCostUsd, 0);
+  const readsTokens = contextReadTracker.entries.reduce((s2, e2) => s2 + e2.estimatedTokens, 0);
   const session = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
     savedAt: (/* @__PURE__ */ new Date()).toISOString(),
     changes: diffTracker.changes,
     contextReads: contextReadTracker.entries,
-    stats
+    stats: {
+      ...stats,
+      totalEstimatedCostUsd: stats.totalEstimatedCostUsd + readsCost,
+      totalEstimatedTokens: stats.totalEstimatedTokens + readsTokens
+    }
   };
   const history = getSavedSessions(context);
   history.unshift(session);

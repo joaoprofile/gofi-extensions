@@ -43,12 +43,19 @@ function archiveSession(
   const stats = diffTracker.stats;
   if (stats.fileChangeCount === 0 && contextReadTracker.entries.length === 0) { return null; }
 
+  const readsCost = contextReadTracker.entries.reduce((s, e) => s + e.estimatedCostUsd, 0);
+  const readsTokens = contextReadTracker.entries.reduce((s, e) => s + e.estimatedTokens, 0);
+
   const session: SavedSession = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
     savedAt: new Date().toISOString(),
     changes: diffTracker.changes,
     contextReads: contextReadTracker.entries,
-    stats,
+    stats: {
+      ...stats,
+      totalEstimatedCostUsd: stats.totalEstimatedCostUsd + readsCost,
+      totalEstimatedTokens: stats.totalEstimatedTokens + readsTokens,
+    },
   };
 
   const history = getSavedSessions(context);
